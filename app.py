@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request
+from utils import formInput
+import hashlib
 
 app = Flask(__name__)
-
-info = ('username','password')
-msg = ""
 
 @app.route("/")
 def form():
@@ -11,12 +10,15 @@ def form():
 
 @app.route("/authenticate/", methods = ['POST'])
 def auth():
-    #print request.form
-    if (request.form['user'] == info[0] and request.form['pass'] == info[1]):
-      msg = "Yay logged in successfully!"
-    else:
-      msg = "Incorrect username or password"
-    return render_template('auth.html', title = "Authenticate", message = msg)
+    return render_template('auth.html', title = "Authenticate", 
+      message = formInput.login(hashlib.sha256(request.form['user']).hexdigest(), 
+        hashlib.sha256(request.form['pass']).hexdigest()))
+        
+@app.route("/register/", methods = ['POST'])
+def reg():
+    return render_template('auth.html', title = "Register", 
+      message = formInput.register(hashlib.sha256(request.form['user']).hexdigest(), 
+        hashlib.sha256(request.form['pass']).hexdigest()))
 
 if __name__ == '__main__':
     app.debug = True
